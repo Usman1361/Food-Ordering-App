@@ -25,6 +25,26 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _searchController = TextEditingController();
   final SpeechToText _speechToText = SpeechToText();
 
+  // void startListening() {
+  //   _speech.listen(
+  //     onResult: (result) {
+  //       setState(() {
+  //         _searchController.text = result.recognizedWords;
+  //         filterData(result.recognizedWords);
+  //       });
+  //     },
+  //   );
+  //   setState(() {
+  //     _isListening = true;
+  //   });
+  // }
+
+  // void stopListening() {
+  //   _speech.stop();
+  //   setState(() {
+  //     _isListening = false;
+  //   });
+  // }
   List<Map<String, dynamic>> cardData = [
     {
       'imagePath': 'assets/images/cheeseburger.png',
@@ -112,13 +132,13 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void startListening() async {
-    await _speechToText.listen(onResult: (result) {
-      String spokenText = result.recognizedWords;
-      _searchController.text = spokenText;
-      filterData(spokenText);
-    });
-  }
+  // void startListening() async {
+  //   await _speechToText.listen(onResult: (result) {
+  //     String spokenText = result.recognizedWords;
+  //     _searchController.text = spokenText;
+  //     filterData(spokenText);
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -205,12 +225,20 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
                       ),
-                      IconButton(
-                        onPressed: startListening,
-                        icon: Icon(Icons.mic),
-                        color: Color(0xFF3C2F2F),
-                        iconSize: 30,
-                      ),
+                    //   IconButton(
+                    //   onPressed: () {
+                    //     if (!_isListening) {
+                    //       startListening();
+                    //     } else {
+                    //       stopListening();
+                    //     }
+                    //   },
+                    //   icon: Icon(
+                    //     _isListening ? Icons.mic : Icons.mic_none,
+                    //     color: Color(0xFF3C2F2F),
+                    //     size: 30,
+                    //   ),
+                    // ),
                     ],
                   ),
                 ),
