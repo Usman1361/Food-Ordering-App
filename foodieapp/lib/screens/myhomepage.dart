@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:foodieapp/screens/productsinfo.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 void main() {
   runApp(MyApp());
@@ -22,9 +23,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _searchController = TextEditingController();
+  final SpeechToText _speechToText = SpeechToText();
 
-  // Sample data for demonstration
-  final List<Map<String, dynamic>> cardData = [
+  List<Map<String, dynamic>> cardData = [
     {
       'imagePath': 'assets/images/cheeseburger.png',
       'title': 'Cheeseburger',
@@ -38,7 +39,6 @@ class _MyHomePageState extends State<MyHomePage> {
       'subTitle': "Veggie's Burger",
       'rating': 4.9,
       'price': '\$200'
-
     },
     {
       'imagePath': 'assets/images/hamburger2.png',
@@ -46,7 +46,6 @@ class _MyHomePageState extends State<MyHomePage> {
       'subTitle': "Veggie's Burger",
       'rating': 3.9,
       'price': '\$400'
-
     },
     {
       'imagePath': 'assets/images/hamburger3.png',
@@ -54,7 +53,6 @@ class _MyHomePageState extends State<MyHomePage> {
       'subTitle': "Veggie's Burger",
       'rating': 4.9,
       'price': '\$60'
-
     },
     {
       'imagePath': 'assets/images/pizza_1.jpg',
@@ -62,7 +60,6 @@ class _MyHomePageState extends State<MyHomePage> {
       'subTitle': "Cheese's Pizza",
       'rating': 3.9,
       'price': '\$380'
-
     },
     {
       'imagePath': 'assets/images/pizza_2.jpg',
@@ -70,7 +67,6 @@ class _MyHomePageState extends State<MyHomePage> {
       'subTitle': "Chicken's Pizza",
       'rating': 4.9,
       'price': '\$200'
-
     },
     {
       'imagePath': 'assets/images/pizza3.jpg',
@@ -78,7 +74,6 @@ class _MyHomePageState extends State<MyHomePage> {
       'subTitle': "Veggie's Pizza",
       'rating': 4.9,
       'price': '\$270'
-
     },
     {
       'imagePath': 'assets/images/pizza_4.jpg',
@@ -86,7 +81,6 @@ class _MyHomePageState extends State<MyHomePage> {
       'subTitle': "Cheese Fajita's Pizza",
       'rating': 4.9,
       'price': '\$400'
-
     },
     // Add more data as needed
   ];
@@ -97,167 +91,193 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     filteredData = cardData;
+    initSpeech();
+  }
+
+  void initSpeech() async {
+    bool speechAvailable = await _speechToText.initialize();
+    if (speechAvailable) {
+      setState(() {
+        // Update state if speech is available
+      });
+    }
   }
 
   void filterData(String query) {
     setState(() {
       filteredData = cardData
-          .where((item) => item['title'].toLowerCase().contains(query.toLowerCase()))
+          .where((item) =>
+              item['title'].toLowerCase().contains(query.toLowerCase()))
           .toList();
+    });
+  }
+
+  void startListening() async {
+    await _speechToText.listen(onResult: (result) {
+      String spokenText = result.recognizedWords;
+      _searchController.text = spokenText;
+      filterData(spokenText);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        child: Stack(
-          children: [
-            Positioned(
-              top: 50,
-              left: 19,
-              child: Text(
-                'Foodgo',
-                style: TextStyle(
-                  fontFamily: 'Lobster',
-                  fontSize: 45,
-                  fontWeight: FontWeight.w400,
-                  height: 60.61 / 45,
-                  color: Color(0xFF3C2F2F),
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Container(
+          width: double.infinity,
+          height: double.maxFinite,
+          child: Stack(
+            children: [
+              Positioned(
+                top: 50,
+                left: 19,
+                child: Text(
+                  'Foodie',
+                  style: TextStyle(
+                    fontFamily: 'Lobster',
+                    fontSize: 45,
+                    fontWeight: FontWeight.w400,
+                    height: 60.61 / 45,
+                    color: Color(0xFF3C2F2F),
+                  ),
                 ),
               ),
-            ),
-            Positioned(
-              top: 110,
-              left: 19,
-              child: Text(
-                'Order your favourite food!',
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                  height: 27 / 18,
-                  color: Color(0xFF6A6A6A),
+              Positioned(
+                top: 110,
+                left: 19,
+                child: Text(
+                  'Order your favourite food!',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    height: 27 / 18,
+                    color: Color(0xFF6A6A6A),
+                  ),
                 ),
               ),
-            ),
-            Positioned(
-              top: 163,
-              left: 19,
-              child: Container(
-                width: 279,
-                height: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(0x26000000),
-                      blurRadius: 19,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 15),
-                      child: Icon(
-                        Icons.search,
-                        size: 34,
-                        color: Color(0xFF3C2F2F),
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: (value) {
-                          filterData(value);
-                        },
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Search',
-                          hintStyle: TextStyle(
-                            fontFamily: 'Roboto',
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                            height: 21.09 / 18,
-                            color: Color(0xFF3C2F2F),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              top: 163,
-              right: 16,
-              child: InkWell(
-                onTap: () {
-                  // Handle icon tap
-                },
+              Positioned(
+                top: 163,
+                left: 19,
                 child: Container(
-                  width: 60,
+                  width: 279,
                   height: 60,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: Color(0xFF19C08E),
-                  ),
-                  child: Icon(
-                    Icons.tune_rounded,
                     color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0x26000000),
+                        blurRadius: 19,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 15),
+                        child: Icon(
+                          Icons.search,
+                          size: 34,
+                          color: Color(0xFF3C2F2F),
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: (value) {
+                            filterData(value);
+                          },
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: 'Search',
+                            hintStyle: TextStyle(
+                              fontFamily: 'Roboto',
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                              height: 21.09 / 18,
+                              color: Color(0xFF3C2F2F),
+                            ),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: startListening,
+                        icon: Icon(Icons.mic),
+                        color: Color(0xFF3C2F2F),
+                        iconSize: 30,
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
-            Positioned(
-              top: 240,
-              left: 19,
-              child: FrameWithButtons(),
-            ),
-            Positioned(
-              top: 320,
-              left: 12,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(filteredData.length ~/ 2, (index) {
-                  final firstIndex = index * 2;
-                  final secondIndex = firstIndex + 1;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 14),
-                    child: Row(
-                      children: [
-                        SizedBox(width: 4),
-                        CardWidget(
-                          imagePath: filteredData[firstIndex]['imagePath'],
-                          title: filteredData[firstIndex]['title'],
-                          subTitle: filteredData[firstIndex]['subTitle'],
-                          rating: filteredData[firstIndex]['rating'],
-                          price: filteredData[firstIndex]['price'],
-
-                        ),
-                        SizedBox(width: 4),
-                        if (secondIndex < filteredData.length)
-                          CardWidget(
-                            imagePath: filteredData[secondIndex]['imagePath'],
-                            title: filteredData[secondIndex]['title'],
-                            subTitle: filteredData[secondIndex]['subTitle'],
-                            rating: filteredData[secondIndex]['rating'],
-                            price: filteredData[secondIndex]['price'],
-
-                          ),
-                      ],
+              Positioned(
+                top: 163,
+                right: 16,
+                child: InkWell(
+                  onTap: () {
+                    // Handle icon tap
+                  },
+                  child: Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Color(0xFF19C08E),
                     ),
-                  );
-                }),
+                    child: Icon(
+                      Icons.tune_rounded,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ],
+              Positioned(
+                top: 240,
+                left: 25,
+                child: FrameWithButtons(),
+              ),
+              Positioned(
+                top: 320,
+                left: 12,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: List.generate(filteredData.length ~/ 2, (index) {
+                    final firstIndex = index * 2;
+                    final secondIndex = firstIndex + 1;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: Row(
+                        children: [
+                          SizedBox(width: 4),
+                          CardWidget(
+                            imagePath: filteredData[firstIndex]['imagePath'],
+                            title: filteredData[firstIndex]['title'],
+                            subTitle: filteredData[firstIndex]['subTitle'],
+                            rating: filteredData[firstIndex]['rating'],
+                            price: filteredData[firstIndex]['price'],
+                          ),
+                          SizedBox(width: 4),
+                          if (secondIndex < filteredData.length)
+                            CardWidget(
+                              imagePath: filteredData[secondIndex]['imagePath'],
+                              title: filteredData[secondIndex]['title'],
+                              subTitle: filteredData[secondIndex]['subTitle'],
+                              rating: filteredData[secondIndex]['rating'],
+                              price: filteredData[secondIndex]['price'],
+                            ),
+                        ],
+                      ),
+                    );
+                  }),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
